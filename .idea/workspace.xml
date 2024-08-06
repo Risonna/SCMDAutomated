@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="eb1b7dd4-7a94-4377-a451-7d14ff696fbc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mvnw" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mvnw.cmd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/HelloApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/LoginWindowController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/NotificationController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/SettingsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/SteamGuardWindowController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/APICaller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/ImageDownloader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamPageParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/entities/RecentDownload.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/entities/UserSession.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/entities/WorkshopItem.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/RecentDownloads.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/SteamGuardWindow.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/loginWindow.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/images/dog.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/images/folder.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/images/loading.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/collection_items.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/login.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/recent_downloads.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/settings.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="FxmlFile" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2jyT7br4Qtmr48QzhD2Y4oRKtsa" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;true&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;true&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/programs/intellijProjects/SCMDAutomated/src/main/resources/com/risonna/scmdautomated/hello-view.fxml&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.49770114&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.JavaFX&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\programs\intellijProjects\SCMDAutomated\src\main\resources\com\risonna\scmdautomated\images" />
+      <recent name="C:\programs\intellijProjects\SCMDAutomated\src\main\resources\com\risonna\scmdautomated\fxml" />
+      <recent name="C:\programs\intellijProjects\SCMDAutomated\src\main\resources\com\risonna\scmdautomated" />
+      <recent name="C:\programs\intellijProjects\SCMDAutomated\src\main\resources\com\risonna\scmdautomated\styles" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.risonna.scmdautomated.HelloApplication" />
+      <module name="SCMDAutomated" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="eb1b7dd4-7a94-4377-a451-7d14ff696fbc" name="Changes" comment="" />
+      <created>1722358154307</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1722358154307</updated>
+      <workItem from="1722358155329" duration="4188000" />
+      <workItem from="1722398326362" duration="4525000" />
+      <workItem from="1722403733894" duration="203000" />
+      <workItem from="1722403944202" duration="1257000" />
+      <workItem from="1722405208641" duration="2331000" />
+      <workItem from="1722407548121" duration="5477000" />
+      <workItem from="1722413900631" duration="4511000" />
+      <workItem from="1722418766293" duration="7713000" />
+      <workItem from="1722426494079" duration="7747000" />
+      <workItem from="1722497369853" duration="12116000" />
+      <workItem from="1722509687951" duration="2503000" />
+      <workItem from="1722512199892" duration="4259000" />
+      <workItem from="1722574390921" duration="14202000" />
+      <workItem from="1722593545078" duration="3884000" />
+      <workItem from="1722598332036" duration="162000" />
+      <workItem from="1722598500776" duration="3643000" />
+      <workItem from="1722677334966" duration="2944000" />
+      <workItem from="1722772687734" duration="223000" />
+      <workItem from="1722772918545" duration="2574000" />
+      <workItem from="1722785870321" duration="4661000" />
+      <workItem from="1722790545172" duration="499000" />
+      <workItem from="1722830895021" duration="3009000" />
+      <workItem from="1722838963680" duration="6853000" />
+      <workItem from="1722846623884" duration="2786000" />
+      <workItem from="1722849418756" duration="2495000" />
+      <workItem from="1722915510330" duration="4865000" />
+      <workItem from="1722927715683" duration="1894000" />
+      <workItem from="1722930761247" duration="4038000" />
+      <workItem from="1722934809248" duration="3519000" />
+      <workItem from="1722943367599" duration="3265000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

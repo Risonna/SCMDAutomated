@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import java.net.URL?>
+<VBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.risonna.scmdautomated.controllers.LoginWindowController"
+      spacing="20" alignment="CENTER" styleClass="login-window">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    <Label text="Steam Login" styleClass="title-label"/>
+    <TextField fx:id="usernameField" promptText="Username" styleClass="input-field"/>
+    <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field"/>
+    <Button fx:id="loginButton" text="Login" onAction="#login" styleClass="login-button"/>
+    <Label fx:id="errorLabel" styleClass="error-label" visible="false"/>
+    <stylesheets>
+        <URL value="@../styles/login.css"/>
+    </stylesheets>
+</VBox>

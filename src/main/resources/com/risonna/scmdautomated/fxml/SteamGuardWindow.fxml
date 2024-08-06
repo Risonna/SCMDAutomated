@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.risonna.scmdautomated.controllers.SteamGuardWindowController"
+      spacing="20" alignment="CENTER" styleClass="steam-guard-window">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    <Label text="Enter Steam Guard Code" styleClass="title-label"/>
+    <TextField fx:id="codeField" promptText="Steam Guard Code" styleClass="input-field"/>
+    <Button fx:id="submitButton" text="Submit" onAction="#submitCode" styleClass="submit-button"/>
+    <Label fx:id="errorLabel" styleClass="error-label" visible="false"/>
+</VBox>

@@ -1,0 +1,27 @@
+.login-window {
+    -fx-background-color: #2c2f33;
+}
+
+.title-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #ffffff;
+}
+
+.input-field {
+    -fx-background-color: #23272a;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #99aab5;
+}
+
+.login-button {
+    -fx-background-color: #7289da;
+    -fx-text-fill: #ffffff;
+}
+
+.login-button:hover {
+    -fx-background-color: #5e77d4;
+}
+
+.error-label {
+    -fx-text-fill: #ff6b6b;
+}
