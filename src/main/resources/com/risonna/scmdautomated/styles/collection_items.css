@@ -1,0 +1,95 @@
+/* Root styles */
+.root {
+    -fx-background-color: #1e1e1e;
+}
+
+/* Top toolbar styles */
+.top-toolbar {
+    -fx-background-color: #2a2a2a;
+    -fx-padding: 10px;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #3d3d3d;
+}
+
+.page-title {
+    -fx-font-size: 24px;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: bold;
+}
+
+.back-button {
+    -fx-background-color: #3d3d3d;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.back-button:hover {
+    -fx-background-color: #4a4a4a;
+}
+
+/* Content area styles */
+.content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.items-container {
+    -fx-padding: 20px;
+}
+
+.item-pane {
+    -fx-background-color: #2a2a2a;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+    -fx-alignment: center-left;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 2);
+}
+
+.item-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: bold;
+}
+
+.item-size {
+    -fx-font-size: 14px;
+    -fx-text-fill: #b0b0b0;
+}
+
+.download-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.download-button:hover {
+    -fx-background-color: #3e8e41;
+}
+
+/* Scroll bar styles */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane >.viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: #2d2d2d;
+}
+
+.scroll-bar:vertical.thumb {
+    -fx-background-color: #4d4d4d;
+}
+
+.scroll-bar:vertical.thumb:hover {
+    -fx-background-color: #5d5d5d;
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import java.net.URL?>
+<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.risonna.scmdautomated.controllers.CollectionItemsController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="top-toolbar">
+            <Label text="Collection Items" styleClass="page-title"/>
+            <Region HBox.hgrow="ALWAYS" />
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area" hbarPolicy="NEVER">
+            <VBox fx:id="itemsContainer" spacing="20" styleClass="items-container">
+                <!-- Items will be added here programmatically -->
+            </VBox>
+        </ScrollPane>
+    </center>
+    <stylesheets>
+        <URL value="@../styles/collection_items.css" />
+    </stylesheets>
+</BorderPane>

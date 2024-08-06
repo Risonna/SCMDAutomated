@@ -1,0 +1,91 @@
+.root {
+    -fx-background-color: #1e1e1e;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.header-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+.list-view {
+    -fx-background-color: #2d2d2d;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.list-cell {
+    -fx-background-color: #2d2d2d;
+    -fx-padding: 10px;
+    -fx-border-color: #3d3d3d;
+    -fx-border-width: 0 0 1 0;
+}
+
+.list-cell:hover {
+    -fx-background-color: #3d3d3d;
+}
+
+.list-cell:selected {
+    -fx-background-color: #4d4d4d;
+}
+
+.button {
+    -fx-background-color: #3d3d3d;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+}
+
+.button:hover {
+    -fx-background-color: #4d4d4d;
+}
+
+.button:pressed {
+    -fx-background-color: #5d5d5d;
+}
+
+.download-item {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.download-item .name {
+    -fx-font-size: 16px;
+    -fx-text-fill: #ffffff;
+}
+
+.download-item .size {
+    -fx-font-size: 12px;
+    -fx-text-fill: #b0b0b0;
+}
+
+.download-item .status-success {
+    -fx-text-fill: #4CAF50;
+}
+
+.download-item .status-error {
+    -fx-text-fill: #F44336;
+}
+
+.download-item .open-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+}
+
+.download-item .open-button:hover {
+    -fx-background-color: #4d4d4d;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: #2d2d2d;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #4d4d4d;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #5d5d5d;
+}
