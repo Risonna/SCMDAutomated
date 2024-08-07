@@ -99,8 +99,10 @@ public class MainController {
         Image dog = new Image("https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcSCki_UMys6lxgh_ubSzHzY34ajYywRpXt_mPFjxMFoOHERZb7c");
         imageView.setImage(dog);
         loginCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
+            if (!UserSession.getInstance().isLoggedIn() && newValue) {
                 showLoginWindow();
+            } else {
+                UserSession.getInstance().setLoggedIn(false);
             }
         });
         recentDownloadsController.setNotificationLabel(recentDownloadsNotification);
@@ -336,11 +338,7 @@ public class MainController {
                 recentDownloadsController.addRecentDownload(new RecentDownload(titleLabel.getText(), imageView.getImage(), size.getText(),
                         "downloading", null, publishedFileId, String.valueOf(appId)));
                 NotificationController.updateRecentDownloadsNotification(true, recentDownloadsNotification);
-                if(!UserSession.getInstance().isLoggedIn()){
-                    SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, true, recentDownloadsController);
-                } else {
-                    SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, false, recentDownloadsController);
-                }
+                    SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
                 showTemporaryMessage("Download started");
             } else if (publishedFileId != null && collectionIds != null && !collectionIds.isEmpty()) { //This is a collection (AppId - 766)
                 Task<Void> downloadTask = SteamCMDInteractor.createDownloadCollectionItemsTask(collectionIds, recentDownloadsController);

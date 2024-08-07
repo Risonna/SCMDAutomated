@@ -1,39 +1,53 @@
 package com.risonna.scmdautomated.model;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.pty4j.PtyProcess;
+import com.pty4j.PtyProcessBuilder;
+import com.pty4j.unix.PTYOutputStream;
 import com.risonna.scmdautomated.controllers.RecentDownloadsController;
 import com.risonna.scmdautomated.controllers.SettingsController;
 import com.risonna.scmdautomated.model.entities.RecentDownload;
 import com.risonna.scmdautomated.model.entities.UserSession;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.scene.control.ProgressBar;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 public class SteamCMDInteractor {
     private static final int MAX_CONCURRENT_PROCESSES = 5;
-    public static void downloadWorkshopItem(String publishedFileId, long appId, boolean anonymous, RecentDownloadsController recentDownloadsController) {
+    private static final Pattern DOWNLOAD_PATTERN = Pattern.compile("Downloading item (\\d+) \\.\\.\\.");
+    private static final Pattern SUCCESS_PATTERN = Pattern.compile("Success\\. Downloaded item (\\d+) to \"(.+)\" \\((\\d+) bytes\\)");
+    private static final Pattern ANSI_ESCAPE_PATTERN = Pattern.compile("\u001B\\[[;\\d]*[A-Za-z]");
+
+    private static String stripAnsiEscapeCodes(String input) {
+        if (input == null) {
+            return null;
+        }
+        Matcher matcher = ANSI_ESCAPE_PATTERN.matcher(input);
+        return matcher.replaceAll("");
+    }
+    public static void downloadWorkshopItem(String publishedFileId, long appId, RecentDownloadsController recentDownloadsController) {
         String steamcmdPath = SettingsController.getSteamcmdPath();
         if (steamcmdPath == null || steamcmdPath.isEmpty()) {
             System.out.println("Steamcmd path is not set");
             return;
         }
 
-        File steamcmdFile = new File(steamcmdPath);
+        File steamcmdFile = new File(steamcmdPath + "\\steamcmd.exe");
         if (!steamcmdFile.exists()) {
-            System.out.println("Steamcmd executable not found at: " + steamcmdPath);
+            System.out.println("Steamcmd executable not found at: " + steamcmdPath + "\\steamcmd.exe");
             return;
         }
+        String loginCredentials = UserSession.getInstance().isLoggedIn() ? UserSession.getInstance().getUsername() + " " + UserSession.getInstance().decryptPassword() : "anonymous";
 
-        String command = steamcmdPath + " +login anonymous +workshop_download_item " + appId + " " + publishedFileId + " validate" + " +quit";
+        String command = steamcmdPath  + "\\steamcmd.exe +login "  + loginCredentials + " +workshop_download_item " + appId + " " + publishedFileId + " validate" + " +quit";
 
         Thread thread = new Thread(() -> {
             try {
@@ -73,12 +87,60 @@ public class SteamCMDInteractor {
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                downloadCollectionItems(itemIds, recentDownloadsController);
+                if(UserSession.getInstance().isLoggedIn()) {
+                    downloadCollectionItemsLoggedIn(itemIds, recentDownloadsController);
+                } else {
+                    downloadCollectionItemsLoggedOut(itemIds, recentDownloadsController);
+                }
                 return null;
             }
         };
     }
-    public static void downloadCollectionItems(List<Long> itemIds, RecentDownloadsController recentDownloadsController) {
+    public static void downloadCollectionItemsLoggedIn(List<Long> itemIds, RecentDownloadsController recentDownloadsController) {
+        String itemDetailsResponse = APICaller.sendPostRequestCheckItemDetails(itemIds);
+        String appIdFurther = null;
+        if (itemDetailsResponse == null) {
+            return;
+        }
+
+        JSONObject itemDetailsJson = new JSONObject(itemDetailsResponse);
+        JSONObject itemDetailsResponseObj = itemDetailsJson.getJSONObject("response");
+        JSONArray publishedFileDetails = itemDetailsResponseObj.getJSONArray("publishedfiledetails");
+
+        String steamcmdPath = SettingsController.getSteamcmdPath();
+        String loginCredentials = UserSession.getInstance().isLoggedIn() ? UserSession.getInstance().getUsername() + " " + UserSession.getInstance().decryptPassword() : "anonymous";
+
+        StringBuilder commandBuilder = new StringBuilder(steamcmdPath + "\\steamcmd.exe +login " + loginCredentials);
+
+        for (int i = 0; i < publishedFileDetails.length(); i++) {
+            JSONObject itemDetail = publishedFileDetails.getJSONObject(i);
+            String itemId = itemDetail.optString("publishedfileid");
+            long appId = itemDetail.optLong("creator_app_id");
+            String title = itemDetail.optString("title");
+            String imageUrl = itemDetail.optString("preview_url");
+            long fileSize = itemDetail.optLong("file_size");
+
+            if (itemId.isEmpty() || appId == 0 || title.isEmpty()) {
+                continue;
+            }
+            appIdFurther = String.valueOf(appId);
+
+            Platform.runLater(() -> {
+                RecentDownload download = new RecentDownload(title, ImageDownloader.downloadImage(imageUrl),
+                        humanReadableFileSize(fileSize), "queued", null, itemId, String.valueOf(appId));
+                recentDownloadsController.addRecentDownload(download);
+            });
+
+            commandBuilder.append(" +workshop_download_item ").append(appId).append(" ").append(itemId).append(" validate");
+        }
+
+        commandBuilder.append(" +quit");
+        System.out.println(commandBuilder.toString());
+
+        downloadAllItemsInSingleInstance(steamcmdPath, commandBuilder.toString(), recentDownloadsController, appIdFurther);
+
+    }
+    public static void downloadCollectionItemsLoggedOut(List<Long> itemIds, RecentDownloadsController recentDownloadsController) {
         String itemDetailsResponse = APICaller.sendPostRequestCheckItemDetails(itemIds);
         if (itemDetailsResponse == null) {
             return;
@@ -129,7 +191,7 @@ public class SteamCMDInteractor {
                 recentDownloadsController.addRecentDownload(download);
             });
 
-            downloadQueue.offer(() -> queuedDownloadWorkshopItem(itemId, appId, true, recentDownloadsController));
+            downloadQueue.offer(() -> queuedDownloadWorkshopItem(itemId, appId, recentDownloadsController));
         }
 
         for (int i = 0; i < MAX_CONCURRENT_PROCESSES; i++) {
@@ -145,21 +207,86 @@ public class SteamCMDInteractor {
 
         executor.shutdown();
     }
+    private static void downloadAllItemsInSingleInstance(String steamcmdPath, String command, RecentDownloadsController recentDownloadsController, String appId) {
+        List<String> commandList = new ArrayList<>();
+        commandList.add(steamcmdPath + "\\steamcmd.exe");
+        commandList.addAll(Arrays.asList(command.split(" ")));
 
-    private static void queuedDownloadWorkshopItem(String publishedFileId, long appId, boolean anonymous, RecentDownloadsController recentDownloadsController) {
+        PtyProcessBuilder builder = new PtyProcessBuilder(commandList.toArray(new String[0]))
+                .setDirectory(new File(steamcmdPath).getAbsolutePath());
+
+        Thread thread = new Thread(() -> {
+            try {
+                PtyProcess process = builder.start();
+                InputStream inputStream = process.getInputStream();
+
+                StringBuilder lineBuffer = new StringBuilder();
+                int c;
+                while ((c = inputStream.read()) != -1) {
+                    if (c == '\n' || c == '\r') {
+                        String line = lineBuffer.toString().trim();
+                        if (!line.isEmpty()) {
+                            System.out.println("___________________________________________________________________________________________");
+                            System.out.println(line);
+                            System.out.println("____________________________________________________________________________________________");
+                            processLine(line, recentDownloadsController, appId);
+                        }
+                        lineBuffer.setLength(0);
+                    } else {
+                        lineBuffer.append((char) c);
+                    }
+                }
+
+                process.waitFor();
+            } catch (IOException | InterruptedException e) {
+                System.out.println("Error running steamcmd: " + e.getMessage());
+            }
+        });
+        thread.start();
+    }
+    private static void processLine(String line, RecentDownloadsController recentDownloadsController, String appId) {
+        Matcher downloadMatcher = DOWNLOAD_PATTERN.matcher(line);
+        if (downloadMatcher.find()) {
+            String itemId = downloadMatcher.group(1);
+            System.out.println("Downloading : " + itemId);
+            Platform.runLater(() -> recentDownloadsController.updateRecentDownloadStatusAndFilepath(itemId, "downloading", null));
+            return;
+        }
+
+        if (line.contains("Success")) {
+            String itemId = line.split(" ")[3];
+            String filepath = line.split(" ")[5];
+            String strippedFilePath = stripAnsiEscapeCodes(filepath);
+            String replacedFilePath = strippedFilePath.replaceAll("\"", "") + "content\\" + appId + "\\" + itemId;
+            System.out.println("Downloaded : " + itemId);
+            System.out.println("Replaced file path: " + replacedFilePath);
+            File file = new File(replacedFilePath);
+            System.out.println("File absolute path: " + file.getAbsolutePath());
+            System.out.println("File exists after download: " + file.exists());
+            Platform.runLater(() -> recentDownloadsController.updateRecentDownloadStatusAndFilepath(itemId, "success", replacedFilePath));
+            return;
+        }
+
+        if (line.contains("ERROR!")) {
+            System.out.println("Error occurred: " + line);
+        }
+    }
+
+
+    private static void queuedDownloadWorkshopItem(String publishedFileId, long appId, RecentDownloadsController recentDownloadsController) {
         String steamcmdPath = SettingsController.getSteamcmdPath();
         if (steamcmdPath == null || steamcmdPath.isEmpty()) {
             System.out.println("Steamcmd path is not set");
             return;
         }
 
-        File steamcmdFile = new File(steamcmdPath);
+        File steamcmdFile = new File(steamcmdPath + "\\steamcmd.exe");
         if (!steamcmdFile.exists()) {
-            System.out.println("Steamcmd executable not found at: " + steamcmdPath);
+            System.out.println("Steamcmd executable not found at: " + steamcmdPath + "\\steamcmd.exe");
             return;
         }
-        String loginMethod = anonymous? "anonymous" : SettingsController.getSteamLogin();
-        String command = steamcmdPath + " +login " + loginMethod + " +workshop_download_item " + appId + " " + publishedFileId + " validate +quit";
+        String loginCredentials = UserSession.getInstance().isLoggedIn() ? UserSession.getInstance().getUsername() + " " + UserSession.getInstance().decryptPassword() : "anonymous";
+        String command = steamcmdPath + "\\steamcmd.exe +login " + loginCredentials + " +workshop_download_item " + appId + " " + publishedFileId + " validate +quit";
 
         try {
             Process process = Runtime.getRuntime().exec(command);
@@ -200,86 +327,87 @@ public class SteamCMDInteractor {
         }
     }
     public static String login() {
-        String steamcmdPath = SettingsController.getSteamcmdPath();
-        if (steamcmdPath == null || steamcmdPath.isEmpty()) {
-            System.out.println("Steamcmd path is not set");
-            return "PATH ERROR";
-        }
-        File steamcmdFile = new File(steamcmdPath);
-        if (!steamcmdFile.exists()) {
-            System.out.println("Steamcmd executable not found at: " + steamcmdPath);
-            return "STEAMCMD DOESN'T EXIST";
-        }
+        String steamcmdPath =  SettingsController.getSteamcmdPath();
+        String username = UserSession.getInstance().getUsername();
+        String password = UserSession.getInstance().decryptPassword();
+        String command = steamcmdPath + "\\steamcmd.exe +login " + username + " " + password + " +quit";
 
-        System.out.println("Starting SteamCMD login process...");
+        List<String> commandList = new ArrayList<>();
+        commandList.add("cmd.exe");
+        commandList.add("/c");
+        commandList.add(command);
+
+        PtyProcessBuilder builder = new PtyProcessBuilder(commandList.toArray(new String[0]))
+                .setDirectory(new File(steamcmdPath).getAbsolutePath());
 
         try {
-            List<String> command = new ArrayList<>();
-            command.add(steamcmdPath);
-            command.add("+login");
-            command.add(UserSession.getInstance().getUsername());
-            command.add(UserSession.getInstance().decryptPassword());
-            command.add("+quit");
+            PtyProcess process = builder.start();
 
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            processBuilder.directory(steamcmdFile.getParentFile());
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-
-            System.out.println("SteamCMD process started. Command: " + String.join(" ", command));
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            String line;
-            StringBuilder output = new StringBuilder();
-            long startTime = System.currentTimeMillis();
-            long timeout = 60000; // 60 seconds timeout
-
-            while ((line = reader.readLine()) != null) {
-                System.out.println("SteamCMD: " + line);
-                output.append(line).append("\n");
-
-                if (System.currentTimeMillis() - startTime > timeout) {
-                    System.out.println("Login process timed out");
-                    process.destroy();
-                    return "TIMEOUT";
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                StringBuilder output = new StringBuilder();
+                while (reader.ready()) {
+                    line = reader.readLine();
+                    output.append(line).append("\n");
+                    System.out.println(line);
+                    if(output.toString().toLowerCase().contains("steam guard")){
+                        break;
+                    }
                 }
 
-                if (line.contains("FAILED")) {
-                    System.out.println("Login failed");
-                    process.destroy();
-                    return "FAILED";
-                } else if (line.toLowerCase().contains("logging in user " + "'" + UserSession.getInstance().getUsername().toLowerCase() + "'" + "to steam public...ok" ) || line.contains("Waiting for user info...OK")) {
-                    System.out.println("Login succeeded");
-                    process.destroy();
+
+                // Check output for login status
+                String outputString = output.toString();
+                if (output.toString().toLowerCase().contains("waiting for user info...ok")) {
                     return "OK";
-                } else if (line.contains("Steam Guard code:")) {
-                    System.out.println("Steam Guard code required");
-                    process.destroy();
+                } else if (outputString.contains("FAILED")) {
+                    return "FAILED";
+                } else if (outputString.toLowerCase().contains("steam guard")) {
                     return "NEED_STEAM_GUARD";
-                } else if (line.contains("Two-factor code:")) {
-                    System.out.println("Two-factor authentication required");
-                    process.destroy();
+                } else if (outputString.toLowerCase().contains("two-factor")) {
                     return "NEED_TWO_FACTOR";
                 }
+
+                return "UNKNOWN_ERROR";
             }
-
-            int exitCode = process.waitFor();
-            System.out.println("SteamCMD process exited with code: " + exitCode);
-            System.out.println("Full SteamCMD output:\n" + output.toString());
-
-            if (output.toString().contains("Logged in OK")) {
-                return "OK";
-            } else if (output.toString().contains("FAILED")) {
-                return "FAILED";
-            }
-
-            return "UNKNOWN_ERROR";
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return "EXCEPTION: " + e.getMessage();
         }
     }
+    public static String loginWithSteamGuard(String steamGuardCode) {
+        String steamcmdPath = SettingsController.getSteamcmdPath();
+        String username = UserSession.getInstance().getUsername();
+        String password = UserSession.getInstance().decryptPassword();
+        String command = steamcmdPath + "\\steamcmd.exe +login " + username + " " + password + " " + steamGuardCode +" +quit";
 
+        List<String> commandList = new ArrayList<>();
+        commandList.add("cmd.exe");
+        commandList.add("/c");
+        commandList.add(command);
 
+        PtyProcessBuilder builder = new PtyProcessBuilder(commandList.toArray(new String[0]))
+                .setDirectory(new File(steamcmdPath).getAbsolutePath());
+
+        try {
+            PtyProcess process = builder.start();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                StringBuilder output = new StringBuilder();
+                while (reader.ready()) {
+                    line = reader.readLine();
+                    output.append(line).append("\n");
+                    System.out.println(line);
+                    if(output.toString().toLowerCase().contains("waiting for user info...ok")){
+                        return "SUCCESS";
+                    }
+                }
+                return "ERROR";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "ERROR";
+    }
 }

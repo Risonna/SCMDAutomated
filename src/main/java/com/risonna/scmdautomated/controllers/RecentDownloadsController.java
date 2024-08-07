@@ -30,6 +30,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RecentDownloadsController implements Initializable {
     @FXML
@@ -115,14 +117,38 @@ public class RecentDownloadsController implements Initializable {
                 openButton.setOnAction(event -> {
                     if (item.getDownloadStatus().equals("success")) {
                         try {
-                            Desktop.getDesktop().open(new File(item.getFilepath()));
+                            File file = new File(item.getFilepath());
+                            System.out.println("FilePath in controller: " + item.getFilepath());
+                            System.out.println("File absolute path: " + file.getAbsolutePath());
+                            System.out.println("File exists: " + file.exists());
+                            if (file.exists()) {
+                                Desktop.getDesktop().open(file);
+                            } else {
+                                System.out.println("File does not exist at the time of opening, retrying after delay.");
+                                new Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        if (file.exists()) {
+                                            try {
+                                                Desktop.getDesktop().open(file);
+                                            } catch (IOException e) {
+                                                System.out.println("Error opening file after delay: " + e.getMessage());
+                                            }
+                                        } else {
+                                            System.out.println("File still does not exist after delay.");
+                                        }
+                                    }
+                                }, 2000); // Delay in milliseconds
+                            }
                         } catch (IOException e) {
                             System.out.println("Error opening file: " + e.getMessage());
                         }
                     }
                 });
 
-                reloadButton.setOnAction(event -> downloadWorkshopItem(item.getPublishedFieldId(), Long.parseLong(item.getAppId()), true, RecentDownloadsController.this));
+
+
+                reloadButton.setOnAction(event -> downloadWorkshopItem(item.getPublishedFieldId(), Long.parseLong(item.getAppId()), RecentDownloadsController.this));
 
                 reloadButton.setVisible(item.getDownloadStatus().equals("failed"));
             }
@@ -202,10 +228,10 @@ public class RecentDownloadsController implements Initializable {
     }
 
     // Mocking the downloadWorkshopItem method as per the instruction
-    public void downloadWorkshopItem(String publishedFileId, long appId, boolean anonymous, RecentDownloadsController recentDownloadsController) {
+    public void downloadWorkshopItem(String publishedFileId, long appId, RecentDownloadsController recentDownloadsController) {
         // Logic for downloading the workshop item goes here
         updateRecentDownloadStatusAndFilepath(publishedFileId, "downloading", null);
-        SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, anonymous, recentDownloadsController);
+        SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
         System.out.println("Downloading workshop item: " + publishedFileId);
     }
 

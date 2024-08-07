@@ -10,7 +10,6 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
@@ -18,7 +17,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -174,7 +172,7 @@ public class CollectionItemsController {
                 System.out.println("Downloading " + title + "..." +  size + "..." +  "anonymous: " +  anonymous +  "..." +  "id: " + publishedFileId);
                 MainController.getRecentDownloadsController().addRecentDownload(new RecentDownload(title, image, size, "downloading", null, String.valueOf(publishedFileId), String.valueOf(appId)));
                 NotificationController.updateRecentDownloadsNotification(true, MainController.getRecentDownloadsController().getNotificationLabel());
-                SteamCMDInteractor.downloadWorkshopItem(String.valueOf(publishedFileId), appId, anonymous, MainController.getRecentDownloadsController());
+                SteamCMDInteractor.downloadWorkshopItem(String.valueOf(publishedFileId), appId, MainController.getRecentDownloadsController());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
