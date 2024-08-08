@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Font?>
 
 <?import java.net.URL?>
-<VBox alignment="CENTER" prefHeight="150.0" prefWidth="300.0" styleClass="settings-vbox" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.risonna.scmdautomated.controllers.SettingsController">
+<VBox alignment="CENTER" prefHeight="150.0" prefWidth="300.0" styleClass="settings-vbox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.risonna.scmdautomated.controllers.SettingsController">
     <Label alignment="CENTER" text="Steamcmd Path" textFill="WHITE">
         <font>
             <Font size="16.0" />

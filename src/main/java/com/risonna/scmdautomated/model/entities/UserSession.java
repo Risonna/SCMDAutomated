@@ -18,6 +18,7 @@ public class UserSession {
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(128);
             this.secretKey = keyGen.generateKey();
+            this.setLoggedIn(false);
         } catch (Exception e) {
             throw new RuntimeException("Error initializing secret key", e);
         }
@@ -44,6 +45,9 @@ public class UserSession {
 
     public boolean isLoggedIn() {
         return isLoggedIn;
+    }
+    public void setLoggedIn(boolean isLoggedIn){
+        this.isLoggedIn = isLoggedIn;
     }
 
     public String getUsername() {

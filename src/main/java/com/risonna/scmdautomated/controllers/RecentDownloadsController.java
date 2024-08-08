@@ -23,22 +23,41 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+
 import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.List;
 
 public class RecentDownloadsController implements Initializable {
     @FXML
     private Button closeButton;
     @FXML
+    private Button clearAllButton;
+    @FXML
     private ListView<RecentDownload> recentDownloadsList;
     private ObservableList<RecentDownload> recentDownloads = FXCollections.observableArrayList();
+    private List<DownloadStatusObserver> observers = new ArrayList<>();
     private Label notificationLabel;
     private Timeline updateTimeline;
+    public void addObserver(DownloadStatusObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(DownloadStatusObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers(String publishedFileId, String status) {
+        for (DownloadStatusObserver observer : observers) {
+            observer.onDownloadStatusChanged(publishedFileId, status);
+        }
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -115,20 +134,47 @@ public class RecentDownloadsController implements Initializable {
                 openButton.setOnAction(event -> {
                     if (item.getDownloadStatus().equals("success")) {
                         try {
-                            Desktop.getDesktop().open(new File(item.getFilepath()));
+                            File file = new File(item.getFilepath());
+                            System.out.println("FilePath in controller: " + item.getFilepath());
+                            System.out.println("File absolute path: " + file.getAbsolutePath());
+                            System.out.println("File exists: " + file.exists());
+                            if (file.exists()) {
+                                Desktop.getDesktop().open(file);
+                            } else {
+                                System.out.println("File does not exist at the time of opening, retrying after delay.");
+                                new Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        if (file.exists()) {
+                                            try {
+                                                Desktop.getDesktop().open(file);
+                                            } catch (IOException e) {
+                                                System.out.println("Error opening file after delay: " + e.getMessage());
+                                            }
+                                        } else {
+                                            System.out.println("File still does not exist after delay.");
+                                        }
+                                    }
+                                }, 2000); // Delay in milliseconds
+                            }
                         } catch (IOException e) {
                             System.out.println("Error opening file: " + e.getMessage());
                         }
                     }
                 });
 
-                reloadButton.setOnAction(event -> downloadWorkshopItem(item.getPublishedFieldId(), Long.parseLong(item.getAppId()), true, RecentDownloadsController.this));
+
+
+                reloadButton.setOnAction(event -> downloadWorkshopItem(item.getPublishedFieldId(), Long.parseLong(item.getAppId()), RecentDownloadsController.this));
 
                 reloadButton.setVisible(item.getDownloadStatus().equals("failed"));
             }
         });
 
         recentDownloadsList.setItems(recentDownloads);
+        // Set onAction handlers for buttons
+        closeButton.setOnAction(event -> closeButtonClicked());
+        clearAllButton.setOnAction(event -> clearAllButtonClicked());
     }
 
     public void addRecentDownload(RecentDownload recentDownload) {
@@ -138,7 +184,7 @@ public class RecentDownloadsController implements Initializable {
     }
 
     @FXML
-    private void closeButtonClicked() {
+    void closeButtonClicked() {
         NotificationController.updateRecentDownloadsNotification(false, notificationLabel);
         Stage stage = (Stage) closeButton.getScene().getWindow();
         if (updateTimeline != null) {
@@ -147,9 +193,6 @@ public class RecentDownloadsController implements Initializable {
         stage.close();
     }
 
-    public ObservableList<RecentDownload> getRecentDownloads() {
-        return recentDownloads;
-    }
 
     public void setRecentDownloads(ObservableList<RecentDownload> recentDownloads) {
         this.recentDownloads = recentDownloads;
@@ -177,6 +220,7 @@ public class RecentDownloadsController implements Initializable {
                 download.setDownloadStatus(status);
                 download.setFilepath(filepath);
                 NotificationController.updateRecentDownloadsNotification(true, notificationLabel);
+                notifyObservers(publishedFileId, status);
                 break;
             }
         }
@@ -186,6 +230,7 @@ public class RecentDownloadsController implements Initializable {
             }
         });
     }
+
 
     public Label getNotificationLabel() {
         return notificationLabel;
@@ -202,17 +247,25 @@ public class RecentDownloadsController implements Initializable {
     }
 
     // Mocking the downloadWorkshopItem method as per the instruction
-    public void downloadWorkshopItem(String publishedFileId, long appId, boolean anonymous, RecentDownloadsController recentDownloadsController) {
+    public void downloadWorkshopItem(String publishedFileId, long appId, RecentDownloadsController recentDownloadsController) {
         // Logic for downloading the workshop item goes here
         updateRecentDownloadStatusAndFilepath(publishedFileId, "downloading", null);
-        SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, anonymous, recentDownloadsController);
+        SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
         System.out.println("Downloading workshop item: " + publishedFileId);
     }
 
     public void setRecentDownloadsList(ListView<RecentDownload> recentDownloadsList) {
         this.recentDownloadsList = recentDownloadsList;
     }
-    public ListView<RecentDownload> getRecentDownloadsList() {
-        return recentDownloadsList;
+    public ObservableList<RecentDownload> getRecentDownloads() {
+        return recentDownloads;
+    }
+    public RecentDownload getDownloadByPublishedFileId(String publishedFileId) {
+        for (RecentDownload download : recentDownloads) {
+            if (download.getPublishedFieldId().equals(publishedFileId)) {
+                return download;
+            }
+        }
+        return null;
     }
 }
