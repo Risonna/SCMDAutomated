@@ -410,4 +410,8 @@ public class SteamCMDInteractor {
         }
         return "ERROR";
     }
+    public static boolean isFileDownloaded(String filePath) {
+        File file = new File(filePath);
+        return file.exists();
+    }
 }

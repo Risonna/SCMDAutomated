@@ -4,18 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ab945200-a01d-4324-a4a0-77a50858dfe4" name="Changes" comment="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="ab945200-a01d-4324-a4a0-77a50858dfe4" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/DownloadStatusObserver.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/LoginWindowController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/LoginWindowController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/entities/UserSession.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/entities/UserSession.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +25,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -108,12 +108,26 @@
       <workItem from="1722967348698" duration="744000" />
       <workItem from="1722968246550" duration="1051000" />
       <workItem from="1722997117598" duration="22910000" />
-      <workItem from="1723034844421" duration="3610000" />
+      <workItem from="1723034844421" duration="8366000" />
+      <workItem from="1723094596680" duration="7482000" />
     </task>
+    <task id="LOCAL-00001" summary="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections">
+      <option name="closed" value="true" />
+      <created>1723049235887</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1723049235887</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections" />
+    <option name="LAST_COMMIT_MESSAGE" value="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -122,6 +136,15 @@
           <url>file://$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java</url>
           <line>255</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java</url>
+          <line>469</line>
+          <properties class="com.risonna.scmdautomated.controllers.MainController" method="openRecentDownloadsWindow">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

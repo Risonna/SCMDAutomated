@@ -5,7 +5,7 @@ import com.risonna.scmdautomated.model.*;
 import com.risonna.scmdautomated.model.entities.RecentDownload;
 import com.risonna.scmdautomated.model.entities.UserSession;
 import com.risonna.scmdautomated.model.entities.WorkshopItem;
-import javafx.animation.PauseTransition;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -13,9 +13,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -23,6 +27,7 @@ import javafx.util.Duration;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -85,6 +90,20 @@ public class MainController {
     @FXML
     private Label temporaryMessageLabel;
     private List<Long> collectionIds;
+    @FXML
+    private VBox centerContent;
+    @FXML
+    private Label installedItemLabel;
+    @FXML
+    private Button openFolderButton;
+    private static CollectionItemsController collectionItemsController;
+    public static void setCollectionItemsController(CollectionItemsController controller) {
+        collectionItemsController = controller;
+    }
+
+    public static CollectionItemsController getCollectionItemsController() {
+        return collectionItemsController;
+    }
 
     public MainController() {
         recentDownloadsController = new RecentDownloadsController();
@@ -133,6 +152,14 @@ public class MainController {
                 }
             }
         }
+        // Add fade-in animation for the main content
+        fadeInContent();
+
+        // Add hover animations for buttons
+        addButtonHoverEffects();
+
+        // Initialize progress bar as invisible
+        downloadProgressBar.setVisible(false);
     }
 
     private void showLoginWindow() {
@@ -148,6 +175,12 @@ public class MainController {
             e.printStackTrace();
         }
     }
+    private void showInstalledItemMessage(String title) {
+        installedItemLabel.setText("This item is already installed: " + title);
+        installedItemLabel.getStyleClass().add("installed-item-label");
+        installedItemLabel.setVisible(true);
+    }
+
 
     @FXML
     private void urlEntered() {
@@ -179,6 +212,14 @@ public class MainController {
                             String imageUrl = publishedFileDetail.getString("preview_url");
                             long creatorAppId = publishedFileDetail.getLong("creator_app_id");
                             appId = creatorAppId;
+                            String filePath = SettingsController.getSteamcmdPath() + "\\steamapps\\workshop\\content\\" + appId + "\\" + publishedFileId;
+                            if (SteamCMDInteractor.isFileDownloaded(filePath)) {
+                                showInstalledItemMessage("This item is already installed on your system.");
+                                System.out.println("File exists :" + filePath);
+                            } else {
+                                installedItemLabel.setVisible(false);
+                                System.out.println("File doesn't exist: " + filePath);
+                            }
 
                             // Convert file size to human-readable format
                             String fileSizeHumanReadable = humanReadableFileSize(fileSize);
@@ -188,6 +229,13 @@ public class MainController {
                             String timeUploadedHumanReadable = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(timeUploaded * 1000));
 
                             // Update the UI here
+                            fadeTransition(imageView, 0.5, 1.0, 1000);
+                            fadeTransition(titleLabel, 0.5, 1.0, 1000);
+                            fadeTransition(gameName, 0.5, 1.0, 1000);
+                            fadeTransition(gameReleaseDate, 0.5, 1.0, 1000);
+                            fadeTransition(uploadDate, 0.5, 1.0, 1000);
+                            fadeTransition(updateDate, 0.5, 1.0, 1000);
+                            fadeTransition(size, 0.5, 1.0, 1000);
                             titleLabel.setText(title);
                             size.setText(fileSizeHumanReadable);
                             updateDate.setText(timeUpdatedHumanReadable);
@@ -335,11 +383,28 @@ public class MainController {
     private void downloadButtonClicked() {
         try {
             if (publishedFileId != null && appId != 766) {
-                recentDownloadsController.addRecentDownload(new RecentDownload(titleLabel.getText(), imageView.getImage(), size.getText(),
-                        "downloading", null, publishedFileId, String.valueOf(appId)));
-                NotificationController.updateRecentDownloadsNotification(true, recentDownloadsNotification);
+                if (SteamCMDInteractor.isFileDownloaded(SettingsController.getSteamcmdPath() + "\\steamapps\\workshop\\content\\" + appId + "\\" + publishedFileId)) {
+                    // Show a dialog to confirm the redownload
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirm Redownload");
+                    alert.setHeaderText("This item is already installed. Do you want to redownload it?");
+                    alert.setContentText("By proceeding, you will redownload the item, which may overwrite your existing files.");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                        recentDownloadsController.addRecentDownload(new RecentDownload(titleLabel.getText(), imageView.getImage(), size.getText(),
+                                "downloading", null, publishedFileId, String.valueOf(appId)));
+                        NotificationController.updateRecentDownloadsNotification(true, recentDownloadsNotification);
+                        SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
+                        showTemporaryMessage("Download started");
+                    }
+                } else {
+                    recentDownloadsController.addRecentDownload(new RecentDownload(titleLabel.getText(), imageView.getImage(), size.getText(),
+                            "downloading", null, publishedFileId, String.valueOf(appId)));
+                    NotificationController.updateRecentDownloadsNotification(true, recentDownloadsNotification);
                     SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
-                showTemporaryMessage("Download started");
+                    showTemporaryMessage("Download started");
+                }
             } else if (publishedFileId != null && collectionIds != null && !collectionIds.isEmpty()) { //This is a collection (AppId - 766)
                 Task<Void> downloadTask = SteamCMDInteractor.createDownloadCollectionItemsTask(collectionIds, recentDownloadsController);
 
@@ -353,6 +418,24 @@ public class MainController {
 
                 new Thread(downloadTask).start();
                 showTemporaryMessage("Collection download started");
+                // Show progress bar with animation
+                downloadProgressBar.setVisible(true);
+                downloadProgressBar.setProgress(0);
+                Timeline timeline = new Timeline(
+                        new KeyFrame(Duration.ZERO, new KeyValue(downloadProgressBar.progressProperty(), 0)),
+                        new KeyFrame(Duration.seconds(2), new KeyValue(downloadProgressBar.progressProperty(), 1))
+
+                );
+                // Hide progress bar after download completes
+                timeline.setOnFinished(event -> {
+                    FadeTransition ft = new FadeTransition(Duration.millis(500), downloadProgressBar);
+                    ft.setFromValue(1.0);
+                    ft.setToValue(0.0);
+                    ft.setOnFinished(e -> downloadProgressBar.setVisible(false));
+                    ft.play();
+                });
+                timeline.play();
+
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -365,6 +448,25 @@ public class MainController {
 
 
     }
+    @FXML
+    private void openInstalledItemFolder() {
+        if (publishedFileId != null && appId != 766) {
+            String filePath = SettingsController.getSteamcmdPath() + "\\steamapps\\workshop\\content\\" + appId + "\\" + publishedFileId;
+            File file = new File(filePath);
+            if (file.exists()) {
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (IOException e) {
+                    showErrorMessage("Failed to open the installed item folder.");
+                }
+            } else {
+                showErrorMessage("The installed item folder does not exist.");
+            }
+        } else {
+            showErrorMessage("No installed item found.");
+        }
+    }
+
     public void openRecentDownloadsWindow() {
         try {
             FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("fxml/RecentDownloads.fxml"));
@@ -376,19 +478,15 @@ public class MainController {
                 recentDownloadsController.setNotificationLabel(recentDownloadsNotification);
             }
             recentDownloadsController.updateRecentDownloadsList();
-            System.out.println("Recent downloads:");
-            for (int i = 0; i < recentDownloadsController.getRecentDownloads().size(); i++) {
-                System.out.println(recentDownloadsController.getRecentDownloads().get(i));
-            }
-            System.out.println("Recent downloads list:");
-            for (RecentDownload recentDownload : recentDownloadsController.getRecentDownloadsList().getItems()) {
-                System.out.println(recentDownload);
-            }
 //            recentDownloadsController.updateRecentDownloadsList();
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Recent Downloads");
             stage.setScene(new Scene(root, 600, 400));
+            // Set the onCloseRequest handler for the stage
+            stage.setOnCloseRequest(event -> recentDownloadsController.closeButtonClicked());
+
+
             stage.show();
 
 
@@ -396,13 +494,55 @@ public class MainController {
             System.out.println("Error loading recent downloads window: " + e.getMessage());
         }
     }
+    private void fadeInContent() {
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), centerContent);
+        fadeTransition.setFromValue(0.0);
+        fadeTransition.setToValue(1.0);
+        fadeTransition.play();
+    }
+    private void fadeTransition(javafx.scene.Node node, double fromValue, double toValue, int durationMillis) {
+        FadeTransition ft = new FadeTransition(Duration.millis(durationMillis), node);
+        ft.setFromValue(fromValue);
+        ft.setToValue(toValue);
+        ft.play();
+    }
+
+
+    private void addButtonHoverEffects() {
+        addHoverEffect(downloadButton);
+        addHoverEffect(settingsButton);
+        addHoverEffect(aboutButton);
+        addHoverEffect(collectionButton);
+    }
+    private void addHoverEffect(Button button) {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), button);
+        scaleTransition.setToX(1.05);
+        scaleTransition.setToY(1.05);
+
+        button.setOnMouseEntered(e -> scaleTransition.playFromStart());
+        button.setOnMouseExited(e -> {
+            scaleTransition.setRate(-1);
+            scaleTransition.play();
+        });
+    }
     private void showTemporaryMessage(String message) {
         temporaryMessageLabel.setText(message);
         temporaryMessageLabel.setVisible(true);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), temporaryMessageLabel);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
+
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
         pause.setOnFinished(e -> {
-            temporaryMessageLabel.setVisible(false);
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(500), temporaryMessageLabel);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> temporaryMessageLabel.setVisible(false));
+            fadeOut.play();
         });
+
         pause.play();
     }
     @FXML
@@ -410,8 +550,10 @@ public class MainController {
         try {
             FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("fxml/collection-items.fxml"));
             Parent root = loader.load();
-            CollectionItemsController controller = loader.getController();
-            controller.loadCollectionItems(collectionIds); // Pass the List of collection item IDs
+            collectionItemsController = loader.getController();
+            collectionItemsController.setRecentDownloadsController(recentDownloadsController);
+            collectionItemsController.loadCollectionItems(collectionIds);
+            collectionItemsController.setSlideInAnimation();
 
             Scene scene = new Scene(root);
             Stage newStage = new Stage();
@@ -420,10 +562,40 @@ public class MainController {
             newStage.setMinHeight(1000);
             newStage.setMinWidth(600);
             newStage.show();
+
+            newStage.setOnCloseRequest(event -> {
+                recentDownloadsController.removeObserver(collectionItemsController);
+                collectionItemsController = null;
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    private void showErrorMessage(String message) {
+        errorMessageLabel.setText(message);
+        errorMessageLabel.setVisible(true);
 
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), errorMessageLabel);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
 
+        PauseTransition pause = new PauseTransition(Duration.seconds(5));
+        pause.setOnFinished(e -> {
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(500), errorMessageLabel);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> errorMessageLabel.setVisible(false));
+            fadeOut.play();
+        });
+
+        pause.play();
+    }
+    // This method should be called when a download status changes from the main window
+    public void updateDownloadStatus(String publishedFileId, String status) {
+        recentDownloadsController.updateRecentDownloadStatusAndFilepath(publishedFileId, status, null);
+        if (collectionItemsController != null) {
+            collectionItemsController.updateItemStatus(publishedFileId, status);
+        }
+    }
 }
