@@ -19,6 +19,8 @@ import javafx.concurrent.Task;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import static com.risonna.scmdautomated.misc.DataUtils.getHumanReadableFileSize;
+
 
 public class SteamCMDInteractor {
     private static final int MAX_CONCURRENT_PROCESSES = 5;
@@ -127,7 +129,7 @@ public class SteamCMDInteractor {
 
             Platform.runLater(() -> {
                 RecentDownload download = new RecentDownload(title, ImageDownloader.downloadImage(imageUrl),
-                        humanReadableFileSize(fileSize), "queued", null, itemId, String.valueOf(appId));
+                        getHumanReadableFileSize(fileSize), "queued", null, itemId, String.valueOf(appId));
                 recentDownloadsController.addRecentDownload(download);
             });
 
@@ -187,7 +189,7 @@ public class SteamCMDInteractor {
 
             Platform.runLater(() -> {
                 RecentDownload download = new RecentDownload(title, ImageDownloader.downloadImage(imageUrl),
-                        humanReadableFileSize(fileSize), "queued", null, itemId, String.valueOf(appId));
+                        getHumanReadableFileSize(fileSize), "queued", null, itemId, String.valueOf(appId));
                 recentDownloadsController.addRecentDownload(download);
             });
 
@@ -315,17 +317,6 @@ public class SteamCMDInteractor {
         }
     }
 
-    private static String humanReadableFileSize(long fileSize) {
-        if (fileSize < 1024) {
-            return fileSize + " bytes";
-        } else if (fileSize < 1024 * 1024) {
-            return (fileSize / 1024) + " KB";
-        } else if (fileSize < 1024 * 1024 * 1024) {
-            return (fileSize / (1024 * 1024)) + " MB";
-        } else {
-            return (fileSize / (1024 * 1024 * 1024)) + " GB";
-        }
-    }
     public static String login() {
         String steamcmdPath =  SettingsController.getSteamcmdPath();
         String username = UserSession.getInstance().getUsername();

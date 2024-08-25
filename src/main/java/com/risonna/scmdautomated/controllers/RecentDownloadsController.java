@@ -24,26 +24,38 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-import java.awt.*;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
 
+
+
+import java.awt.Desktop;
+
 public class RecentDownloadsController implements Initializable {
+
     @FXML
     private Button closeButton;
     @FXML
     private Button clearAllButton;
     @FXML
     private ListView<RecentDownload> recentDownloadsList;
+
     private ObservableList<RecentDownload> recentDownloads = FXCollections.observableArrayList();
-    private List<DownloadStatusObserver> observers = new ArrayList<>();
+    private final List<DownloadStatusObserver> observers = new ArrayList<>();
     private Label notificationLabel;
     private Timeline updateTimeline;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        setupRecentDownloadsList();
+        configureButtons();
+    }
+
     public void addObserver(DownloadStatusObserver observer) {
         observers.add(observer);
     }
@@ -52,192 +64,45 @@ public class RecentDownloadsController implements Initializable {
         observers.remove(observer);
     }
 
-    private void notifyObservers(String publishedFileId, String status) {
-        for (DownloadStatusObserver observer : observers) {
-            observer.onDownloadStatusChanged(publishedFileId, status);
-        }
-    }
-
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        recentDownloadsList.setCellFactory(param -> new ListCell<>() {
-            private HBox hbox;
-            private ImageView imageView;
-            private VBox infoBox;
-            private Label nameLabel;
-            private Label sizeLabel;
-            private Label statusLabel;
-            private Button openButton;
-            private Button reloadButton;
-            private Region spacer;
-
-            {
-                // Initialize the cell components only once
-                hbox = new HBox(10);
-                hbox.getStyleClass().add("download-item");
-
-                imageView = new ImageView();
-                imageView.setFitWidth(40);
-                imageView.setFitHeight(40);
-
-                infoBox = new VBox(5);
-                nameLabel = new Label();
-                nameLabel.getStyleClass().add("name");
-                sizeLabel = new Label();
-                sizeLabel.getStyleClass().add("size");
-                infoBox.getChildren().addAll(nameLabel, sizeLabel);
-
-                statusLabel = new Label();
-                statusLabel.getStyleClass().add("status");
-
-                openButton = new Button();
-                ImageView folderIcon = new ImageView(new Image("https://static-00.iconduck.com/assets.00/folder-icon-512x410-jvths5l6.png"));
-                folderIcon.setFitWidth(20);
-                folderIcon.setFitHeight(20);
-                openButton.setGraphic(folderIcon);
-                openButton.getStyleClass().add("open-button");
-
-                reloadButton = new Button();
-                ImageView reloadIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/risonna/scmdautomated/images/loading.png")));
-                reloadIcon.setFitWidth(20);
-                reloadIcon.setFitHeight(20);
-                reloadButton.setGraphic(reloadIcon);
-                reloadButton.getStyleClass().add("reload-button");
-
-                spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
-
-                hbox.getChildren().addAll(imageView, infoBox, spacer, statusLabel, openButton, reloadButton);
-            }
-
-            @Override
-            protected void updateItem(RecentDownload item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                }
-
-                setGraphic(hbox);
-
-                imageView.setImage(item.getImage());
-                nameLabel.setText(item.getName());
-                sizeLabel.setText(item.getFileSize());
-                statusLabel.setText(item.getDownloadStatus());
-
-                statusLabel.getStyleClass().removeAll("status-success", "status-error");
-                statusLabel.getStyleClass().add(item.getDownloadStatus().equals("success") ? "status-success" : "status-error");
-
-                openButton.setOnAction(event -> {
-                    if (item.getDownloadStatus().equals("success")) {
-                        try {
-                            File file = new File(item.getFilepath());
-                            System.out.println("FilePath in controller: " + item.getFilepath());
-                            System.out.println("File absolute path: " + file.getAbsolutePath());
-                            System.out.println("File exists: " + file.exists());
-                            if (file.exists()) {
-                                Desktop.getDesktop().open(file);
-                            } else {
-                                System.out.println("File does not exist at the time of opening, retrying after delay.");
-                                new Timer().schedule(new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        if (file.exists()) {
-                                            try {
-                                                Desktop.getDesktop().open(file);
-                                            } catch (IOException e) {
-                                                System.out.println("Error opening file after delay: " + e.getMessage());
-                                            }
-                                        } else {
-                                            System.out.println("File still does not exist after delay.");
-                                        }
-                                    }
-                                }, 2000); // Delay in milliseconds
-                            }
-                        } catch (IOException e) {
-                            System.out.println("Error opening file: " + e.getMessage());
-                        }
-                    }
-                });
-
-
-
-                reloadButton.setOnAction(event -> downloadWorkshopItem(item.getPublishedFieldId(), Long.parseLong(item.getAppId()), RecentDownloadsController.this));
-
-                reloadButton.setVisible(item.getDownloadStatus().equals("failed"));
-            }
-        });
-
-        recentDownloadsList.setItems(recentDownloads);
-        // Set onAction handlers for buttons
-        closeButton.setOnAction(event -> closeButtonClicked());
-        clearAllButton.setOnAction(event -> clearAllButtonClicked());
-    }
-
-    public void addRecentDownload(RecentDownload recentDownload) {
-        if(!recentDownloads.contains(recentDownload)) {
-            recentDownloads.add(recentDownload);
-        }
-    }
-
-    @FXML
-    void closeButtonClicked() {
-        NotificationController.updateRecentDownloadsNotification(false, notificationLabel);
-        Stage stage = (Stage) closeButton.getScene().getWindow();
-        if (updateTimeline != null) {
-            updateTimeline.stop();
-        }
-        stage.close();
-    }
-
-
     public void setRecentDownloads(ObservableList<RecentDownload> recentDownloads) {
         this.recentDownloads = recentDownloads;
-        if (updateTimeline != null) {
-            updateTimeline.stop();
-        }
-        updateTimeline = new Timeline(new KeyFrame(Duration.millis(15000), e -> {
-            Platform.runLater(() -> {
-                if (recentDownloadsList != null) {
-                    recentDownloadsList.refresh();
-                }
-            });
-        }));
-        updateTimeline.setCycleCount(Timeline.INDEFINITE);
-        updateTimeline.play();
+        startUpdateTimeline();
     }
 
-    public void updateRecentDownloadsList() {
-        recentDownloadsList.setItems(recentDownloads);
+    public void setNotificationLabel(Label notificationLabel) {
+        this.notificationLabel = notificationLabel;
     }
-
-    public void updateRecentDownloadStatusAndFilepath(String publishedFileId, String status, String filepath) {
-        for (RecentDownload download : recentDownloads) {
-            if (download.getPublishedFieldId().equals(publishedFileId)) {
-                download.setDownloadStatus(status);
-                download.setFilepath(filepath);
-                NotificationController.updateRecentDownloadsNotification(true, notificationLabel);
-                notifyObservers(publishedFileId, status);
-                break;
-            }
-        }
-        Platform.runLater(() -> {
-            if (recentDownloadsList != null) {
-                recentDownloadsList.refresh();
-            }
-        });
-    }
-
 
     public Label getNotificationLabel() {
         return notificationLabel;
     }
 
-    public void setNotificationLabel(Label notificationLabel) {
-        this.notificationLabel = notificationLabel;
+    public ObservableList<RecentDownload> getRecentDownloads() {
+        return recentDownloads;
+    }
+
+    public void addRecentDownload(RecentDownload recentDownload) {
+        if (!recentDownloads.contains(recentDownload)) {
+            recentDownloads.add(recentDownload);
+        }
+    }
+
+    public RecentDownload getDownloadByPublishedFileId(String publishedFileId) {
+        return recentDownloads.stream()
+                .filter(download -> download.getPublishedFieldId().equals(publishedFileId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void updateRecentDownloadStatusAndFilepath(String publishedFileId, String status, String filepath) {
+        RecentDownload download = getDownloadByPublishedFileId(publishedFileId);
+        if (download != null) {
+            download.setDownloadStatus(status);
+            download.setFilepath(filepath);
+            notifyObservers(publishedFileId, status);
+            NotificationController.updateRecentDownloadsNotification(true, notificationLabel);
+        }
+        refreshDownloadsList();
     }
 
     @FXML
@@ -246,26 +111,169 @@ public class RecentDownloadsController implements Initializable {
         NotificationController.updateRecentDownloadsNotification(false, notificationLabel);
     }
 
-    // Mocking the downloadWorkshopItem method as per the instruction
+    @FXML
+    public void closeButtonClicked() {
+        NotificationController.updateRecentDownloadsNotification(false, notificationLabel);
+        Stage stage = (Stage) closeButton.getScene().getWindow();
+        if (updateTimeline != null) {
+            updateTimeline.stop();
+        }
+        stage.close();
+    }
+
     public void downloadWorkshopItem(String publishedFileId, long appId, RecentDownloadsController recentDownloadsController) {
-        // Logic for downloading the workshop item goes here
         updateRecentDownloadStatusAndFilepath(publishedFileId, "downloading", null);
         SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
         System.out.println("Downloading workshop item: " + publishedFileId);
     }
 
-    public void setRecentDownloadsList(ListView<RecentDownload> recentDownloadsList) {
-        this.recentDownloadsList = recentDownloadsList;
+    private void notifyObservers(String publishedFileId, String status) {
+        observers.forEach(observer -> observer.onDownloadStatusChanged(publishedFileId, status));
     }
-    public ObservableList<RecentDownload> getRecentDownloads() {
-        return recentDownloads;
+
+    private void refreshDownloadsList() {
+        Platform.runLater(() -> {
+            if (recentDownloadsList != null) {
+                recentDownloadsList.refresh();
+            }
+        });
     }
-    public RecentDownload getDownloadByPublishedFileId(String publishedFileId) {
-        for (RecentDownload download : recentDownloads) {
-            if (download.getPublishedFieldId().equals(publishedFileId)) {
-                return download;
+
+    public void setupRecentDownloadsList() {
+        recentDownloadsList.setCellFactory(param -> new RecentDownloadListCell(this));
+        recentDownloadsList.setItems(recentDownloads);
+    }
+
+    private void configureButtons() {
+        closeButton.setOnAction(event -> closeButtonClicked());
+        clearAllButton.setOnAction(event -> clearAllButtonClicked());
+    }
+
+    private void startUpdateTimeline() {
+        if (updateTimeline != null) {
+            updateTimeline.stop();
+        }
+        updateTimeline = new Timeline(new KeyFrame(Duration.millis(15000), e -> refreshDownloadsList()));
+        updateTimeline.setCycleCount(Timeline.INDEFINITE);
+        updateTimeline.play();
+    }
+
+    private static class RecentDownloadListCell extends ListCell<RecentDownload> {
+
+        private final HBox hbox = new HBox(10);
+        private final ImageView imageView = new ImageView();
+        private final VBox infoBox = new VBox(5);
+        private final Label nameLabel = new Label();
+        private final Label sizeLabel = new Label();
+        private final Label statusLabel = new Label();
+        private final Button openButton = new Button();
+        private final Button reloadButton = new Button();
+        private final Region spacer = new Region();
+
+        private final RecentDownloadsController controller;
+
+        public RecentDownloadListCell(RecentDownloadsController controller) {
+            this.controller = controller;
+            initializeCellComponents();
+        }
+
+        @Override
+        protected void updateItem(RecentDownload item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText(null);
+                setGraphic(null);
+            } else {
+                setGraphic(hbox);
+                updateCellContent(item);
             }
         }
-        return null;
+
+        private void initializeCellComponents() {
+            hbox.getStyleClass().add("download-item");
+
+            imageView.setFitWidth(40);
+            imageView.setFitHeight(40);
+
+            nameLabel.getStyleClass().add("name");
+            sizeLabel.getStyleClass().add("size");
+            infoBox.getChildren().addAll(nameLabel, sizeLabel);
+
+            statusLabel.getStyleClass().add("status");
+
+            configureButton(openButton, "/com/risonna/scmdautomated/images/folder.png", 20, 20, "open-button");
+            configureButton(reloadButton, "/com/risonna/scmdautomated/images/loading.png", 20, 20, "reload-button");
+
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            hbox.getChildren().addAll(imageView, infoBox, spacer, statusLabel, openButton, reloadButton);
+        }
+
+        private void configureButton(Button button, String iconPath, int iconWidth, int iconHeight, String styleClass) {
+            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream(iconPath)));
+            icon.setFitWidth(iconWidth);
+            icon.setFitHeight(iconHeight);
+            button.setGraphic(icon);
+            button.getStyleClass().add(styleClass);
+        }
+
+        private void updateCellContent(RecentDownload item) {
+            imageView.setImage(item.getImage());
+            nameLabel.setText(item.getName().length() < 25 ? item.getName() : item.getName().substring(0, 25) + "...");
+            sizeLabel.setText(item.getFileSize());
+            statusLabel.setText(item.getDownloadStatus());
+
+            updateStatusLabelStyle(item.getDownloadStatus());
+            configureOpenButton(item);
+            configureReloadButton(item);
+        }
+
+        private void updateStatusLabelStyle(String status) {
+            statusLabel.getStyleClass().removeAll("status-success", "status-error");
+            statusLabel.getStyleClass().add(status.equals("success") ? "status-success" : "status-error");
+        }
+
+        private void configureOpenButton(RecentDownload item) {
+            openButton.setOnAction(event -> {
+                if ("success".equals(item.getDownloadStatus())) {
+                    openDownloadedFile(item.getFilepath());
+                }
+            });
+        }
+
+        private void configureReloadButton(RecentDownload item) {
+            reloadButton.setOnAction(event -> controller.downloadWorkshopItem(item.getPublishedFieldId(), Long.parseLong(item.getAppId()), controller));
+            reloadButton.setVisible("failed".equals(item.getDownloadStatus()));
+        }
+
+        private void openDownloadedFile(String filepath) {
+            File file = new File(filepath);
+            try {
+                if (file.exists()) {
+                    Desktop.getDesktop().open(file);
+                } else {
+                    retryOpenFileAfterDelay(file, 2000);
+                }
+            } catch (IOException e) {
+                System.err.println("Error opening file: " + e.getMessage());
+            }
+        }
+
+        private void retryOpenFileAfterDelay(File file, int delay) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (file.exists()) {
+                        try {
+                            Desktop.getDesktop().open(file);
+                        } catch (IOException e) {
+                            System.err.println("Error opening file after delay: " + e.getMessage());
+                        }
+                    } else {
+                        System.err.println("File still does not exist after delay.");
+                    }
+                }
+            }, delay);
+        }
     }
 }

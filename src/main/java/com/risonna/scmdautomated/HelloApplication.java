@@ -14,8 +14,8 @@ public class HelloApplication extends Application {
 
         Scene scene = new Scene(root);
         stage.setTitle("SCMDAutomated");
-        stage.setMinHeight(1000);
-        stage.setMinWidth(850);
+        stage.setMinHeight(1070);
+        stage.setMinWidth(1200);
         stage.setScene(scene);
         stage.show();
     }

@@ -9,7 +9,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -27,22 +26,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CollectionItemsController implements DownloadStatusObserver{
+import static com.risonna.scmdautomated.misc.DataUtils.getHumanReadableFileSize;
+
+public class CollectionItemsController implements DownloadStatusObserver {
 
     @FXML
     private VBox itemsContainer;
+    @FXML
+    private Parent root;
+
     private RecentDownloadsController recentDownloadsController;
-    private Map<String, HBox> itemPanes = new HashMap<>();
+    private final Map<String, HBox> itemPanes = new HashMap<>();
+
     public void setRecentDownloadsController(RecentDownloadsController controller) {
         this.recentDownloadsController = controller;
         controller.addObserver(this);
     }
+
     @Override
     public void onDownloadStatusChanged(String publishedFileId, String status) {
         Platform.runLater(() -> updateItemStatus(publishedFileId, status));
     }
-    @FXML
-    private Parent root;
+
     public void setSlideInAnimation() {
         TranslateTransition slideIn = new TranslateTransition(Duration.seconds(0.5), root);
         slideIn.setFromX(root.getLayoutX());
@@ -50,16 +55,7 @@ public class CollectionItemsController implements DownloadStatusObserver{
         slideIn.play();
     }
 
-
-
-
-
-    public void initialize() {
-        // This method is called after the FXML file has been loaded
-    }
-
     public void loadCollectionItems(List<Long> ids) {
-        // Clear existing items
         Platform.runLater(() -> itemsContainer.getChildren().clear());
         itemPanes.clear();
 
@@ -69,8 +65,8 @@ public class CollectionItemsController implements DownloadStatusObserver{
                 String response = APICaller.sendPostRequestCheckItemDetails(ids);
                 if (response != null) {
                     JSONObject jsonObject = new JSONObject(response);
-                    JSONObject responseObj = jsonObject.getJSONObject("response");
-                    JSONArray publishedFileDetails = responseObj.getJSONArray("publishedfiledetails");
+                    JSONArray publishedFileDetails = jsonObject.getJSONObject("response")
+                            .getJSONArray("publishedfiledetails");
 
                     for (int i = 0; i < publishedFileDetails.length(); i++) {
                         JSONObject publishedFileDetail = publishedFileDetails.getJSONObject(i);
@@ -88,121 +84,57 @@ public class CollectionItemsController implements DownloadStatusObserver{
         loadThread.start();
     }
 
-    private HBox createPlaceholderItem() {
-        HBox placeholderItem = new HBox(10);
-        placeholderItem.getStyleClass().add("item-pane");
-        ProgressIndicator loadingIndicator = new ProgressIndicator();
-        loadingIndicator.setPrefSize(100, 100);
-        placeholderItem.getChildren().add(loadingIndicator);
-        return placeholderItem;
-    }
-    private void loadItem(JSONObject publishedFileDetail, HBox placeholderItem) {
-        // Create the actual item in the background
-        HBox itemPane = createItemPane(publishedFileDetail);
-
-        // Replace the placeholder item with the actual item
-        Platform.runLater(() -> {
-            if(itemPane == null){
-                itemsContainer.getChildren().remove(placeholderItem);
-                return;
-            }
-            int index = itemsContainer.getChildren().indexOf(placeholderItem);
-            itemsContainer.getChildren().set(index, itemPane);
-        });
-    }
-
     private HBox createItemPane(JSONObject publishedFileDetail) {
+        String title = publishedFileDetail.optString("title", null);
+        long fileSize = publishedFileDetail.optLong("file_size", -1);
+        String imageUrl = publishedFileDetail.optString("preview_url", "https://albums193.zbporn.com/main/9998x9998/98000/98571/2335763.jpg");
+        long publishedFileId = publishedFileDetail.optLong("publishedfileid", -1);
+        long appId = publishedFileDetail.optLong("consumer_app_id", -1);
+
+        if (title == null || fileSize == -1 || publishedFileId == -1 || appId == -1) {
+            System.out.println("Missing mandatory field(s) in JSON: " + publishedFileDetail.toString());
+            return null;
+        }
+
         HBox itemPane = new HBox(10);
         itemPane.getStyleClass().add("item-pane");
-        String title;
-        if(publishedFileDetail.has("title")) {
-            title = publishedFileDetail.getString("title");
-        }
-        else {
-            System.out.println("title null");
-            return null;
-        }
-        long fileSize;
-        if(publishedFileDetail.has("file_size")) {
-            fileSize = publishedFileDetail.getLong("file_size");
-        } else {
-            System.out.println("filesize null");
-            return null;
-        }
-        String imageUrl = null;
-        if(publishedFileDetail.has("preview_url")) {
-            imageUrl = publishedFileDetail.getString("preview_url");
-        } else {
-            System.out.println("image null");
-            imageUrl = "https://albums193.zbporn.com/main/9998x9998/98000/98571/2335763.jpg";
-        }
-        long publishedFileId;
-        if(publishedFileDetail.has("publishedfileid")) {
-            publishedFileId = publishedFileDetail.getLong("publishedfileid");
-        } else {
-            System.out.println("publishedFieldId null");
-            return null;
-        }
-        long appId;
-        if(publishedFileDetail.has("consumer_app_id")) {
-            appId = publishedFileDetail.getLong("consumer_app_id");
-         } else {
-            System.out.println("title null");
-             return null;
-         }
+
         String filePath = SettingsController.getSteamcmdPath() + "\\steamapps\\workshop\\content\\" + appId + "\\" + publishedFileId;
 
-        // Create UI elements
         ImageView imageView = new ImageView(ImageDownloader.downloadImage(imageUrl));
         imageView.setFitHeight(100);
         imageView.setFitWidth(100);
         imageView.setPreserveRatio(true);
 
-
         VBox detailsBox = new VBox(5);
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("item-title");
-        Label sizeLabel = new Label("Size: " + humanReadableFileSize(fileSize));
+        Label sizeLabel = new Label("Size: " + getHumanReadableFileSize(fileSize));
         sizeLabel.getStyleClass().add("item-size");
 
-
-
         detailsBox.getChildren().addAll(titleLabel, sizeLabel);
-        RecentDownload existingDownload = recentDownloadsController.getDownloadByPublishedFileId(String.valueOf(publishedFileId));
 
         Button actionButton = new Button();
         actionButton.getStyleClass().add("action-button");
         actionButton.setUserData(publishedFileId);
 
+        RecentDownload existingDownload = recentDownloadsController.getDownloadByPublishedFileId(String.valueOf(publishedFileId));
         if (SteamCMDInteractor.isFileDownloaded(filePath)) {
             actionButton.setText("Installed");
             actionButton.getStyleClass().add("installed-button");
             actionButton.setDisable(true);
+        } else if (existingDownload != null) {
+            updateButtonState(existingDownload.getDownloadStatus(), actionButton);
         } else {
-            existingDownload = recentDownloadsController.getDownloadByPublishedFileId(String.valueOf(publishedFileId));
-            if (existingDownload != null) {
-                updateButtonState(existingDownload.getDownloadStatus(), actionButton);
-            } else {
-                actionButton.setText("Download");
-                actionButton.setOnAction(e -> downloadItem(String.valueOf(publishedFileId), title, imageView.getImage(), String.valueOf(fileSize), appId));
-            }
+            actionButton.setText("Download");
+            actionButton.setOnAction(e -> downloadItem(String.valueOf(publishedFileId), title, imageView.getImage(), String.valueOf(fileSize), appId));
         }
-
 
         detailsBox.getChildren().add(actionButton);
         itemPane.getChildren().addAll(imageView, detailsBox);
-
         itemPanes.put(String.valueOf(publishedFileId), itemPane);
 
-        // Add some animations to make it look smoother
-        itemPane.setOpacity(0);
-        itemPane.setTranslateY(10);
-        Timeline timeline = new Timeline();
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(200), new KeyValue(itemPane.opacityProperty(), 1)));
-        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(200), new KeyValue(itemPane.translateYProperty(), 0)));
-        timeline.play();
-
-
+        animateItemPane(itemPane);
 
         return itemPane;
     }
@@ -210,20 +142,25 @@ public class CollectionItemsController implements DownloadStatusObserver{
     private void updateButtonState(String status, Button actionButton) {
         Platform.runLater(() -> {
             actionButton.getStyleClass().remove("installed-button");
-            if ("failed".equals(status)) {
-                actionButton.setText("Retry");
-                actionButton.setDisable(false);
-                actionButton.setOnAction(e -> retryDownload(actionButton.getUserData().toString()));
-            } else if ("success".equals(status)) {
-                actionButton.setText("Installed");
-                actionButton.getStyleClass().add("installed-button");
-                actionButton.setDisable(true);
-            } else {
-                actionButton.setText(status);
-                actionButton.setDisable(true);
+            switch (status) {
+                case "failed":
+                    actionButton.setText("Retry");
+                    actionButton.setDisable(false);
+                    actionButton.setOnAction(e -> retryDownload(actionButton.getUserData().toString()));
+                    break;
+                case "success":
+                    actionButton.setText("Installed");
+                    actionButton.getStyleClass().add("installed-button");
+                    actionButton.setDisable(true);
+                    break;
+                default:
+                    actionButton.setText(status);
+                    actionButton.setDisable(true);
+                    break;
             }
         });
     }
+
     private void retryDownload(String publishedFileId) {
         RecentDownload download = recentDownloadsController.getDownloadByPublishedFileId(publishedFileId);
         if (download != null) {
@@ -233,28 +170,25 @@ public class CollectionItemsController implements DownloadStatusObserver{
 
     private void downloadItem(String publishedFileId, String title, Image image, String size, long appId) {
         String filePath = SettingsController.getSteamcmdPath() + "\\steamapps\\workshop\\content\\" + appId + "\\" + publishedFileId;
-        if (SteamCMDInteractor.isFileDownloaded(filePath)) {
-            // Show a dialog to confirm the redownload
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirm Redownload");
-            alert.setHeaderText("This item is already installed. Do you want to redownload it?");
-            alert.setContentText("By proceeding, you will redownload the item, which may overwrite your existing files.");
 
+        if (SteamCMDInteractor.isFileDownloaded(filePath)) {
+            Alert alert = createRedownloadConfirmationDialog();
             Optional<ButtonType> result = alert.showAndWait();
+
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                RecentDownload newDownload = new RecentDownload(title, image, size, "downloading", null, publishedFileId, String.valueOf(appId));
-                recentDownloadsController.addRecentDownload(newDownload);
-                NotificationController.updateRecentDownloadsNotification(true, recentDownloadsController.getNotificationLabel());
-                SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
-                updateItemStatus(publishedFileId, "downloading");
+                startDownload(publishedFileId, title, image, size, appId);
             }
         } else {
-            RecentDownload newDownload = new RecentDownload(title, image, size, "downloading", null, publishedFileId, String.valueOf(appId));
-            recentDownloadsController.addRecentDownload(newDownload);
-            NotificationController.updateRecentDownloadsNotification(true, recentDownloadsController.getNotificationLabel());
-            SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
-            updateItemStatus(publishedFileId, "downloading");
+            startDownload(publishedFileId, title, image, size, appId);
         }
+    }
+
+    private void startDownload(String publishedFileId, String title, Image image, String size, long appId) {
+        RecentDownload newDownload = new RecentDownload(title, image, size, "downloading", null, publishedFileId, String.valueOf(appId));
+        recentDownloadsController.addRecentDownload(newDownload);
+        NotificationController.updateRecentDownloadsNotification(true, recentDownloadsController.getNotificationLabel());
+        SteamCMDInteractor.downloadWorkshopItem(publishedFileId, appId, recentDownloadsController);
+        updateItemStatus(publishedFileId, "downloading");
     }
 
     public void updateItemStatus(String publishedFileId, String status) {
@@ -265,18 +199,20 @@ public class CollectionItemsController implements DownloadStatusObserver{
             updateButtonState(status, actionButton);
         }
     }
-
-
-    private String humanReadableFileSize(long fileSize) {
-        if (fileSize < 1024) {
-            return fileSize + " bytes";
-        } else if (fileSize < 1024 * 1024) {
-            return (fileSize / 1024) + " KB";
-        } else if (fileSize < 1024 * 1024 * 1024) {
-            return (fileSize / (1024 * 1024)) + " MB";
-        } else {
-            return (fileSize / (1024 * 1024 * 1024)) + " GB";
-        }
+    private Alert createRedownloadConfirmationDialog() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Redownload");
+        alert.setHeaderText("This item is already installed. Do you want to redownload it?");
+        alert.setContentText("By proceeding, you will redownload the item, which may overwrite your existing files.");
+        return alert;
     }
 
+    private void animateItemPane(HBox itemPane) {
+        itemPane.setOpacity(0);
+        itemPane.setTranslateY(10);
+        Timeline timeline = new Timeline();
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(200), new KeyValue(itemPane.opacityProperty(), 1)));
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(200), new KeyValue(itemPane.translateYProperty(), 0)));
+        timeline.play();
+    }
 }
