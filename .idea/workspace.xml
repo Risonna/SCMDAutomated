@@ -5,15 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab945200-a01d-4324-a4a0-77a50858dfe4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/DownloadStatusObserver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/misc/DataUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/HelloApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -24,8 +24,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -75,6 +75,7 @@
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.49770114&quot;,
@@ -83,6 +84,12 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn package" />
+      <command value="mvn clean package" />
+    </option>
+  </component>
   <component name="RunManager">
     <configuration name="HelloApplication" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="corretto-21" />
@@ -109,7 +116,14 @@
       <workItem from="1722968246550" duration="1051000" />
       <workItem from="1722997117598" duration="22910000" />
       <workItem from="1723034844421" duration="8366000" />
-      <workItem from="1723094596680" duration="7482000" />
+      <workItem from="1723094596680" duration="8727000" />
+      <workItem from="1723204566210" duration="1202000" />
+      <workItem from="1723885063209" duration="2767000" />
+      <workItem from="1723910798323" duration="5654000" />
+      <workItem from="1723959764110" duration="2991000" />
+      <workItem from="1723995331435" duration="705000" />
+      <workItem from="1724041671963" duration="5429000" />
+      <workItem from="1724391777006" duration="3802000" />
     </task>
     <task id="LOCAL-00001" summary="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections">
       <option name="closed" value="true" />
@@ -119,7 +133,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723049235887</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Many visual changes, added some small features, fixed some bugs:&#10;-fixed buttons on recent downloads window not working.&#10;-added status change to collection items window, changing together with recent downloads&#10;-added filesystem item check on collection items window to see whether an item already exists on the disk&#10;-Changed overall looks and styles in many places">
+      <option name="closed" value="true" />
+      <created>1723132397169</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1723132397169</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -127,24 +149,16 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections" />
-    <option name="LAST_COMMIT_MESSAGE" value="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections" />
+    <MESSAGE value="Many visual changes, added some small features, fixed some bugs:&#10;-fixed buttons on recent downloads window not working.&#10;-added status change to collection items window, changing together with recent downloads&#10;-added filesystem item check on collection items window to see whether an item already exists on the disk&#10;-Changed overall looks and styles in many places" />
+    <option name="LAST_COMMIT_MESSAGE" value="Many visual changes, added some small features, fixed some bugs:&#10;-fixed buttons on recent downloads window not working.&#10;-added status change to collection items window, changing together with recent downloads&#10;-added filesystem item check on collection items window to see whether an item already exists on the disk&#10;-Changed overall looks and styles in many places" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java</url>
-          <line>255</line>
+          <line>257</line>
           <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-method">
-          <url>file://$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java</url>
-          <line>469</line>
-          <properties class="com.risonna.scmdautomated.controllers.MainController" method="openRecentDownloadsWindow">
-            <option name="EMULATED" value="true" />
-            <option name="WATCH_EXIT" value="false" />
-          </properties>
-          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
