@@ -5,16 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab945200-a01d-4324-a4a0-77a50858dfe4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/DownloadStatusObserver.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/images/dog_copy.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/CollectionItemsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/RecentDownloadsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/collection-items.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/main-page.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/SettingsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/SettingsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/fxml/settings.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/main_page.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/settings.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/risonna/scmdautomated/styles/settings.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,6 +107,8 @@
       <workItem from="1722997117598" duration="22910000" />
       <workItem from="1723034844421" duration="8366000" />
       <workItem from="1723094596680" duration="7482000" />
+      <workItem from="1724645270042" duration="8936000" />
+      <workItem from="1724733499526" duration="7306000" />
     </task>
     <task id="LOCAL-00001" summary="-Added possibility to log in using Steam Guard.&#10;-Resolved some problems with steamcmd not outputting lines to standard buffer and with weird ASCI characters&#10;-Added a new method for logged in users to download full collections">
       <option name="closed" value="true" />
@@ -132,15 +131,10 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/model/SteamCMDInteractor.java</url>
-          <line>255</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/main/java/com/risonna/scmdautomated/controllers/MainController.java</url>
-          <line>469</line>
-          <properties class="com.risonna.scmdautomated.controllers.MainController" method="openRecentDownloadsWindow">
+          <line>495</line>
+          <properties class="com.risonna.scmdautomated.controllers.MainController">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>

@@ -1,13 +1,59 @@
 .settings-vbox {
-    -fx-background-color: #2b2b2b;
+    -fx-background-color: #202020;
+}
+
+.title-label {
+    -fx-font-weight: bold;
+    -fx-padding: 10 0 10 0;
 }
 
 .text-field {
-    -fx-background-color: #3b3b3b;
+    -fx-background-color: #303030;
     -fx-text-fill: white;
+    -fx-prompt-text-fill: #808080;
+    -fx-padding: 8 12;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.info-label {
+    -fx-text-fill: #a0a0a0;
+    -fx-font-size: 12px;
+}
+
+.browse-button {
+    -fx-background-color: #404040;
+    -fx-text-fill: white;
+    -fx-padding: 8 12;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.browse-button:hover {
+    -fx-background-color: #505050;
 }
 
 .save-button {
-    -fx-background-color: #4CAF50;
+    -fx-background-color: #2196F3;
     -fx-text-fill: white;
+    -fx-padding: 10 20;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-font-weight: bold;
+}
+
+.save-button:hover {
+    -fx-background-color: #1976D2;
+    -fx-cursor: hand;
+}
+
+.save-button:pressed {
+    -fx-background-color: #1565C0;
+}
+.error-message {
+    -fx-text-fill: red;
+}
+
+.success-message {
+    -fx-text-fill: green;
 }

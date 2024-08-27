@@ -110,12 +110,17 @@ public class MainController {
 
     private void showSteamcmdPathAlert() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("Steamcmd path is required");
+        alert.setTitle("Attention");
+        alert.setHeaderText("SteamCMD path is required");
         alert.setContentText("Please enter a valid steamcmd path in the settings");
 
+        alert.getButtonTypes().remove(ButtonType.CANCEL);
         ButtonType settingsButtonType = new ButtonType("Settings");
-        alert.getButtonTypes().setAll(settingsButtonType, ButtonType.CANCEL);
+        alert.getButtonTypes().setAll(settingsButtonType);
+
+        Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+        alertStage.setOnCloseRequest(event -> Platform.exit());
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == settingsButtonType) {
@@ -127,10 +132,19 @@ public class MainController {
         try {
             FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("fxml/settings.fxml"));
             Parent root = loader.load();
+
             Stage settingsStage = new Stage();
             settingsStage.initModality(Modality.APPLICATION_MODAL);
             settingsStage.setTitle("Settings");
-            settingsStage.setScene(new Scene(root, 300, 150));
+            settingsStage.setScene(new Scene(root));
+
+            // Disable 'X' button on settings window until a path is set
+            settingsStage.setOnCloseRequest(event -> {
+                if(!new File(SettingsController.STEAMCMD_PATH_FILE).exists()){
+                    event.consume();
+                }
+            });
+
             settingsStage.showAndWait();
         } catch (IOException e) {
             System.out.println("Error loading settings window: " + e.getMessage());
@@ -212,7 +226,7 @@ public class MainController {
                 JSONObject publishedFileDetail = publishedFileDetails.getJSONObject(0);
                 updateUIWithItemDetails(publishedFileDetail);
                 checkIfItemIsInstalled(publishedFileDetail);
-                handleCollectionOrGameInfo(publishedFileDetail);
+                handleCollectionOrSingleItemInfo(publishedFileDetail);
             }
         }
     }
@@ -255,20 +269,23 @@ public class MainController {
         if (SteamCMDInteractor.isFileDownloaded(filePath)) {
             Platform.runLater(() -> showInstalledItemMessage("This item is already installed on your system."));
         } else {
-            Platform.runLater(() -> installedItemLabel.setVisible(false));
+            Platform.runLater(() -> {
+                openFolderButton.setVisible(false);
+                installedItemLabel.setVisible(false);});
         }
     }
 
-    private void handleCollectionOrGameInfo(JSONObject publishedFileDetail) {
+    private void handleCollectionOrSingleItemInfo(JSONObject publishedFileDetail) {
         long creatorAppId = publishedFileDetail.getLong("creator_app_id");
         if (creatorAppId != 766) {
-            handleGameInfo(creatorAppId);
+            handleSingleItemInfo(creatorAppId);
         } else {
-            handleCollectionInfo(publishedFileId);
+            long consumerAppId = publishedFileDetail.getLong("consumer_app_id");
+            handleCollectionInfo(publishedFileId, consumerAppId);
         }
     }
 
-    private void handleGameInfo(long creatorAppId) {
+    private void handleSingleItemInfo(long creatorAppId) {
         Platform.runLater(() -> {
             collectionItemsLabel.setVisible(false);
             collectionButton.setVisible(false);
@@ -283,12 +300,20 @@ public class MainController {
         gameInfoThread.start();
     }
 
-    private void handleCollectionInfo(String collectionId) {
+    private void handleCollectionInfo(String collectionId, long consumerAppId) {
         Platform.runLater(() -> {
             collectionItemsLabel.setVisible(true);
             collectionButton.setVisible(true);
         });
         getCollectionDetails(collectionId);
+        Thread gameInfoThread = new Thread(() -> {
+            try {
+                getGameInfo(consumerAppId);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        gameInfoThread.start();
     }
 
     private void getGameInfo(long creatorAppId) throws ParseException {
@@ -296,6 +321,7 @@ public class MainController {
         String response = APICaller.sendGetRequest(apiUrl);
         if (response != null) {
             JSONObject jsonObject = new JSONObject(response);
+            System.out.println("creator app id is " + creatorAppId);
             JSONObject gameInfo = jsonObject.getJSONObject(String.valueOf(creatorAppId));
             if (gameInfo.getBoolean("success")) {
                 JSONObject data = gameInfo.getJSONObject("data");
