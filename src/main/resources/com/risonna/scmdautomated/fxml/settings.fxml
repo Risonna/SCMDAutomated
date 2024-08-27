@@ -4,22 +4,38 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <?import java.net.URL?>
-<VBox alignment="CENTER" prefHeight="150.0" prefWidth="300.0" styleClass="settings-vbox" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.risonna.scmdautomated.controllers.SettingsController">
-    <Label alignment="CENTER" text="Steamcmd Path" textFill="WHITE">
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="450.0" spacing="10" styleClass="settings-vbox"
+      xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.risonna.scmdautomated.controllers.SettingsController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+
+    <Label alignment="CENTER" text="Steamcmd Path" textFill="WHITE" styleClass="title-label">
         <font>
-            <Font size="16.0" />
+            <Font size="18.0"/>
         </font>
     </Label>
-    <TextField fx:id="steamcmdPathTextField" promptText="Path to steamcmd" styleClass="text-field" />
-    <Button fx:id="saveSettingsButton" onAction="#saveSettingsButtonClicked" styleClass="save-button" text="Save Settings" />
-    <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-    </padding>
+
+    <HBox alignment="CENTER" spacing="10">
+        <TextField fx:id="steamcmdPathTextField" promptText="e.g. C:\SteamCMDFolder" styleClass="text-field"/>
+        <Button fx:id="browseButton" onAction="#browseButtonClicked" styleClass="browse-button" text="Browse"/>
+    </HBox>
+
+    <Label textFill="WHITE" wrapText="true" styleClass="info-label">
+        Enter the full path to your SteamCMD installation folder. This is the folder containing steamcmd.exe.
+    </Label>
+
+    <Button fx:id="saveSettingsButton" onAction="#saveSettingsButtonClicked" styleClass="save-button"
+            text="Save Settings"/>
+    <Label fx:id="messageLabel" />
+
     <stylesheets>
-        <URL value="@../styles/settings.css" />
+        <URL value="@../styles/settings.css"/>
     </stylesheets>
 </VBox>
